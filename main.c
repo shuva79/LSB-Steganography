@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "parse.h"
 
 #define FAIL_CODE 1
 #define SUCCESS_CODE 0
@@ -46,15 +47,39 @@ int ChangeImageBits(uint8_t *initial_pixel_data, int width, int height)       //
 
     int besides_padding = ((bytes_needed * width) + 3 ) & ~3; 
     printf("\nTotal bytes needed= %d\n",besides_padding);
+    char* parse_return = parseText();
+
     for (int y = 0; y < height; y++)
     {
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < width; x+=3)
         {
-            uint8_t *pixel = &initial_pixel_data[x * bytes_needed + y * besides_padding];
+            // pixel holds the combined 24-bit value of an individual BMP image pixel 
+            // for each iteraction, we will take three image pixels to store a single character
+            
+            /*
+                Since a single character takes 8 bytes of space, we will require 3 pixels to store a single character if we choose to only make use of 1 LSB
+                3 pixels = 9 RGB values, 8 RGB values used for hiding the information and the trailing value to indicate continuation of data hiding
+                1 = Continue encoding
+                0 = Finish encoding 
+            */
 
-            pixel[0] = 24;
-            pixel[1] = 24;
-            pixel[2] = 24;
+            uint8_t *pixel1 = &initial_pixel_data[x * bytes_needed + y * besides_padding];
+            uint8_t *pixel2 = &initial_pixel_data[(x+1) * bytes_needed + y * besides_padding];
+            uint8_t *pixel3 = &initial_pixel_data[(x+2) * bytes_needed + y * besides_padding];
+
+        
+            // Here, pixel[0], [1] and [2] set the B G R values respectively.
+            pixel1[0] = 0;
+            pixel1[1] = 255;
+            pixel1[2] = 255;
+        
+            pixel2[0] = 0;
+            pixel2[1] = 0;
+            pixel2[2] = 0;
+        
+            pixel3[0] = 255;
+            pixel3[1] = 255;
+            pixel3[2] = 255;
         }
     }
     return SUCCESS_CODE;   // return just in case 
