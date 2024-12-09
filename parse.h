@@ -24,7 +24,7 @@ void parseBinary(int ascii_value)
 
 char* parseText()
 {
-    char* input_text="abcd./1";
+    char* input_text="abcd./";
 
     for (int i = 0; i < strlen(input_text); i++)
     {
