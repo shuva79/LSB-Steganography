@@ -19,12 +19,12 @@ void parseBinary(int ascii_value)
     binary_string[8] = '\0';
 
     printf("Binary value: %s\n", binary_string);
-     
+    
 }
 
 char* parseText()
 {
-    char* input_text="abcd./";
+    char* input_text="100";
 
     for (int i = 0; i < strlen(input_text); i++)
     {
@@ -32,4 +32,10 @@ char* parseText()
     }
     // parse individual characters here, simply typecasting will ensure that the value will be converted ASCII->decimal
     return "========";
+}
+
+int convertToRawBinary(char binary_string)
+{
+    return (binary_string == '1' ) ? 1 : 0;
+
 }

@@ -69,17 +69,38 @@ int ChangeImageBits(uint8_t *initial_pixel_data, int width, int height)       //
 
         
             // Here, pixel[0], [1] and [2] set the B G R values respectively.
-            pixel1[0] = 0;
-            pixel1[1] = 255;
-            pixel1[2] = 255;
+            /*
+                Understanding negation operation:
+                    The negation operator `~` flips bits. So here, 1 (0000 0001) gets flipped.
+                    So, ~1 is 1111 1110. When you perform the & operation, it ends up setting all 7 bits to 1 and the last bit to 0.
+                    This would pretty much mean every bit except for the least significant one stays the same.
+
+                What we need in order to embed the data:
+                value = ( value & ∼1 ) | ( bit & 1 )
+
+
+            */
+            int a[3] = {pixel1[0], pixel1[1], pixel1[2]};
+            char* abc = "00110001";
+            int j = 0;
+            pixel1[0] = (pixel1[0] & ~1) | (convertToRawBinary(abc[j]) & 1);
+            pixel1[1] = (pixel1[1] & ~1) | (convertToRawBinary(abc[j++]) & 1);
+            pixel1[2] = (pixel1[2] & ~1) | (convertToRawBinary(abc[j++]) & 1);
+
+            // for (int i = 0; i < 3; i++)
+            //     printf("\nEmbeded value: %d vs a: %d\n", pixel1[i], a[i]);
+
+            // return 0;
         
-            pixel2[0] = 0;
-            pixel2[1] = 0;
-            pixel2[2] = 0;
+            pixel2[0] = (pixel2[0] & ~1) | (convertToRawBinary(abc[j++]) & 1);
+            pixel2[1] = (pixel2[1] & ~1) | (convertToRawBinary(abc[j++]) & 1);
+            pixel2[2] = (pixel2[2] & ~1) | (convertToRawBinary(abc[j++]) & 1);
         
-            pixel3[0] = 255;
-            pixel3[1] = 255;
-            pixel3[2] = 255;
+            pixel3[0] = (pixel3[0] & ~1) | (convertToRawBinary(abc[j++]) & 1);
+            pixel3[1] = (pixel3[1] & ~1) | (convertToRawBinary(abc[j++]) & 1);
+            // for this, you have to create some form of condition. Treat this as a continuation bit
+            pixel3[2] = (pixel3[2] & ~1) | (convertToRawBinary(abc[j++]) & 1);
+            
         }
     }
     return SUCCESS_CODE;   // return just in case 
