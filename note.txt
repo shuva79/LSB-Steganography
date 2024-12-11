@@ -1,0 +1,7 @@
+11/12/24:
+    I’m guessing that a buffer which only holds the current 8 bits would be enough to embed the values. 
+    But it would require some form of position tracking. 
+    
+    A more efficient way to embed data could be to process each 8-bit chunk real-time
+    as opposed to storing the entire value in a buffer. 
+    We will process a single 8-bit chunk of data at a time, embed it and then continue to the next 8-bit chunk?

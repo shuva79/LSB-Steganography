@@ -5,6 +5,7 @@
 
 #define FAIL_CODE 1
 #define SUCCESS_CODE 0
+#define END_OF_INPUT 0
 
 #pragma pack(push, 1) // Disable padding
 // for more info on pragma look into this https://stackoverflow.com/questions/3318410/pragma-pack-effect
@@ -47,7 +48,16 @@ int ChangeImageBits(uint8_t *initial_pixel_data, int width, int height)       //
 
     int besides_padding = ((bytes_needed * width) + 3 ) & ~3; 
     printf("\nTotal bytes needed= %d\n",besides_padding);
-    char* parse_return = parseText();
+    //char* parse_return = parseText();
+
+    // todo: allocate memory dynamically
+    // memory allocation
+    char input_text[100];
+    int count_input_char_position = 0;
+
+    printf("\nEnter a value to be embedded: \n");
+    scanf("%s", input_text);
+    printf("\nHola %s\n", input_text);
 
     for (int y = 0; y < height; y++)
     {
@@ -81,17 +91,30 @@ int ChangeImageBits(uint8_t *initial_pixel_data, int width, int height)       //
 
             */
             int a[3] = {pixel1[0], pixel1[1], pixel1[2]};
-            char* abc = "00110001";
+
+            // we have to allocate 9 bytes of memory, 1 for each char 
+            // Since 1 char has 8 bits of info and we have to store each bit as a character
+            // 1 * 8 + 1 = 9 bytes of memory allocated (1 for termination bit)
+            char* abc = (char*) malloc(9 * sizeof(char));
+    
+            // parse the text and store the last binary string in the buffer
+            parseText(input_text[count_input_char_position], &abc);
+            printf("\ninput char: %c\n", input_text[count_input_char_position]);
+            count_input_char_position++;
+            
+
+            // this is for debugging 
+            printf("\nlast buffer val: %s\n", abc);
             int j = 0;
-            pixel1[0] = (pixel1[0] & ~1) | (convertToRawBinary(abc[j]) & 1);
+            printf("\nCheck here\n");
+
+            pixel1[0] = (pixel1[0] & ~1) | (convertToRawBinary(abc[j++]) & 1);
             pixel1[1] = (pixel1[1] & ~1) | (convertToRawBinary(abc[j++]) & 1);
             pixel1[2] = (pixel1[2] & ~1) | (convertToRawBinary(abc[j++]) & 1);
 
-            // for (int i = 0; i < 3; i++)
-            //     printf("\nEmbeded value: %d vs a: %d\n", pixel1[i], a[i]);
-
-            // return 0;
-        
+            // pixel2[0] = 0;
+            // pixel2[1] = 0;
+            // pixel2[2] = 0;
             pixel2[0] = (pixel2[0] & ~1) | (convertToRawBinary(abc[j++]) & 1);
             pixel2[1] = (pixel2[1] & ~1) | (convertToRawBinary(abc[j++]) & 1);
             pixel2[2] = (pixel2[2] & ~1) | (convertToRawBinary(abc[j++]) & 1);
@@ -99,8 +122,14 @@ int ChangeImageBits(uint8_t *initial_pixel_data, int width, int height)       //
             pixel3[0] = (pixel3[0] & ~1) | (convertToRawBinary(abc[j++]) & 1);
             pixel3[1] = (pixel3[1] & ~1) | (convertToRawBinary(abc[j++]) & 1);
             // for this, you have to create some form of condition. Treat this as a continuation bit
+
             pixel3[2] = (pixel3[2] & ~1) | (convertToRawBinary(abc[j++]) & 1);
-            
+
+            printf("\nCheck here\n"); 
+
+            if (input_text[count_input_char_position] == '\0')
+                return END_OF_INPUT;
+            free(abc);
         }
     }
     return SUCCESS_CODE;   // return just in case 
@@ -146,7 +175,10 @@ int main()
     fclose(fp);
 
     // perform image manipulation
-    ChangeImageBits(image_data, width, height);
+    printf("\nEmbed or extract? (e/x)\n");
+    if (getc(stdin) == 'e')
+        ChangeImageBits(image_data, width, height);
+    else
 
     // write modified image data to a new file
     fp = fopen("output_images/modified_hill.bmp", "wb");            // opens a write file for binary
